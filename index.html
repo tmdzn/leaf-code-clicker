@@ -52,10 +52,19 @@
       transition: width 0.3s ease;
     }
 
-    #score, #tokens {
+    #score, #tokens, #next-reward {
       font-size: 20px;
       color: #555;
       margin: 10px 0;
+    }
+
+    #bonus-message {
+      font-size: 24px;
+      color: #4caf50;
+      font-weight: bold;
+      margin-top: 10px;
+      opacity: 0;
+      transition: opacity 1s ease-in-out;
     }
   </style>
 </head>
@@ -67,6 +76,8 @@
   </div>
   <p id="score">Ваши клики: <span id="click-count">0</span></p>
   <p id="tokens">Токены LCXC: <span id="token-count">0</span></p>
+  <p id="next-reward">До награды: <span id="remaining-clicks">10</span> кликов</p>
+  <p id="bonus-message">🎉 Бонус: +5 LCXC!</p>
 
   <script>
     let clicks = parseInt(localStorage.getItem("clicks")) || 0;
@@ -77,11 +88,14 @@
     const clickCount = document.getElementById("click-count");
     const tokenCount = document.getElementById("token-count");
     const progressBar = document.getElementById("progress-bar");
+    const bonusMessage = document.getElementById("bonus-message");
+    const remainingClicks = document.getElementById("remaining-clicks");
 
     // Обновить текст при загрузке
     clickCount.textContent = clicks;
     tokenCount.textContent = tokens;
     progressBar.style.width = `${(clicks / goal) * 100}%`;
+    remainingClicks.textContent = 10 - (clicks % 10);
 
     coin.addEventListener("click", () => {
       clicks++;
@@ -90,11 +104,19 @@
       // Обновить прогресс-бар
       progressBar.style.width = `${(clicks / goal) * 100}%`;
 
+      // Обновить счётчик до следующей награды
+      remainingClicks.textContent = 10 - (clicks % 10);
+
       // Начисление токенов
       if (clicks % 10 === 0) {
         tokens += 5;
         tokenCount.textContent = tokens;
-        alert(`🎉 Бонус! Вы заработали 5 LCXC токенов!`);
+
+        // Показать бонусное сообщение
+        bonusMessage.style.opacity = 1;
+        setTimeout(() => {
+          bonusMessage.style.opacity = 0;
+        }, 1500);
       }
 
       if (clicks === goal) {
