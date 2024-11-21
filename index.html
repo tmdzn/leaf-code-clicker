@@ -1,47 +1,99 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Leaf Code Clicker</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            background-color: #f0f4f8;
-            margin: 0;
-            padding: 20px;
-        }
-        #counter {
-            font-size: 48px;
-            margin: 20px;
-        }
-        button {
-            font-size: 24px;
-            padding: 10px 20px;
-            background-color: #799263;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #6b854f;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Leaf Code Clicker</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+    }
+    h1 {
+      color: #799263;
+    }
+    #clicker {
+      margin: 20px auto;
+      padding: 20px;
+      background-image: url('https://i.ibb.co/R6Vc5hm/Logo-Greenify-1.png');
+      background-size: cover;
+      background-position: center;
+      background-color: #c3d4c3;
+      border: none;
+      border-radius: 10px;
+      font-size: 18px;
+      color: white;
+      font-weight: bold;
+      width: 150px;
+      height: 150px;
+      cursor: pointer;
+    }
+    #score {
+      font-size: 24px;
+      margin: 10px;
+    }
+    #progress {
+      font-size: 18px;
+      color: #444;
+    }
+    .click-effect {
+      position: absolute;
+      animation: pop 0.5s ease;
+    }
+    @keyframes pop {
+      0% { transform: scale(1); opacity: 1; }
+      100% { transform: scale(2); opacity: 0; }
+    }
+  </style>
 </head>
 <body>
-    <h1>Leaf Code Clicker</h1>
-    <p>Нажимайте на кнопку, чтобы зарабатывать очки!</p>
-    <div id="counter">0</div>
-    <button onclick="incrementCounter()">Кликни меня</button>
+  <h1>Leaf Code Clicker</h1>
+  <p id="progress">Осталось кликов: <span id="goal">50</span></p>
+  <button id="clicker"></button>
+  <p>Ваши клики: <span id="score">0</span></p>
+  <script>
+    let clicks = parseInt(localStorage.getItem("clicks")) || 0;
+    const goal = 50;
+    const clicker = document.getElementById("clicker");
+    const scoreElement = document.getElementById("score");
+    const goalElement = document.getElementById("goal");
 
-    <script>
-        let counter = 0;
-        function incrementCounter() {
-            counter++;
-            document.getElementById('counter').innerText = counter;
-        }
-    </script>
+    // Обновить текст при загрузке
+    scoreElement.textContent = clicks;
+    goalElement.textContent = Math.max(goal - clicks, 0);
+
+    clicker.addEventListener("click", (e) => {
+      clicks++;
+      scoreElement.textContent = clicks;
+
+      // Обновить оставшиеся клики
+      const remaining = goal - clicks;
+      goalElement.textContent = remaining > 0 ? remaining : "Цель достигнута!";
+
+      // Эффект при клике
+      const effect = document.createElement("div");
+      effect.textContent = "🍃";
+      effect.className = "click-effect";
+      effect.style.left = `${e.clientX}px`;
+      effect.style.top = `${e.clientY}px`;
+      document.body.appendChild(effect);
+      setTimeout(() => document.body.removeChild(effect), 500);
+
+      // Проверка на достижение цели
+      if (clicks % 10 === 0 && clicks < goal) {
+        alert(`🎉 Бонус! Вы заработали 5 LCXC токенов!`);
+      }
+
+      if (clicks === goal) {
+        alert("Поздравляем! Вы достигли цели и заработали 50 LCXC токенов!");
+      }
+
+      // Сохранить прогресс
+      localStorage.setItem("clicks", clicks);
+    });
+  </script>
 </body>
 </html>
