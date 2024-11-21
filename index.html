@@ -8,91 +8,126 @@
     body {
       font-family: Arial, sans-serif;
       text-align: center;
-      background-color: #f4f4f4;
+      background-color: #f7f9fc;
+      background-image: url('https://i.ibb.co/R6Vc5hm/Logo-Greenify-1.png'); /* Лёгкий узор */
+      background-repeat: no-repeat;
+      background-size: 300px;
+      background-position: center top;
       margin: 0;
       padding: 0;
     }
+
     h1 {
       color: #799263;
+      font-size: 36px;
+      margin-top: 50px;
     }
+
     #clicker {
       margin: 20px auto;
       padding: 20px;
-      background-image: url('https://i.ibb.co/R6Vc5hm/Logo-Greenify-1.png');
-      background-size: cover;
-      background-position: center;
-      background-color: #c3d4c3;
-      border: none;
-      border-radius: 10px;
-      font-size: 18px;
-      color: white;
+      background: linear-gradient(145deg, #799263, #c3d4c3);
+      color: #fff;
+      font-size: 22px;
       font-weight: bold;
-      width: 150px;
-      height: 150px;
+      text-transform: uppercase;
+      border: none;
+      border-radius: 15px;
+      width: 200px;
+      height: 200px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
       cursor: pointer;
+      transition: all 0.3s ease;
     }
+
+    #clicker:hover {
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+      transform: scale(1.1);
+    }
+
     #score {
       font-size: 24px;
-      margin: 10px;
-    }
-    #progress {
-      font-size: 18px;
       color: #444;
+      margin: 20px 0;
     }
-    .click-effect {
-      position: absolute;
-      animation: pop 0.5s ease;
+
+    #progress-container {
+      width: 80%;
+      margin: 0 auto;
+      background-color: #e0e0e0;
+      border-radius: 10px;
+      overflow: hidden;
+      height: 20px;
     }
-    @keyframes pop {
-      0% { transform: scale(1); opacity: 1; }
-      100% { transform: scale(2); opacity: 0; }
+
+    #progress-bar {
+      height: 100%;
+      width: 0;
+      background: linear-gradient(145deg, #799263, #c3d4c3);
+      border-radius: 10px;
+      transition: width 0.3s ease;
+    }
+
+    #tokens {
+      font-size: 20px;
+      color: #555;
+      margin-top: 10px;
     }
   </style>
 </head>
 <body>
   <h1>Leaf Code Clicker</h1>
-  <p id="progress">Осталось кликов: <span id="goal">50</span></p>
-  <button id="clicker"></button>
+  <div id="progress-container">
+    <div id="progress-bar"></div>
+  </div>
+  <p id="progress">Прогресс: <span id="goal">50</span> кликов</p>
+  <button id="clicker">🍃 Кликни!</button>
   <p>Ваши клики: <span id="score">0</span></p>
+  <p id="tokens">Токены LCXC: <span id="lcxc">0</span></p>
+
   <script>
     let clicks = parseInt(localStorage.getItem("clicks")) || 0;
+    let tokens = parseInt(localStorage.getItem("tokens")) || 0;
     const goal = 50;
     const clicker = document.getElementById("clicker");
     const scoreElement = document.getElementById("score");
     const goalElement = document.getElementById("goal");
+    const progressBar = document.getElementById("progress-bar");
+    const tokensElement = document.getElementById("lcxc");
 
     // Обновить текст при загрузке
     scoreElement.textContent = clicks;
-    goalElement.textContent = Math.max(goal - clicks, 0);
+    goalElement.textContent = goal - clicks > 0 ? goal - clicks : "Цель достигнута!";
+    tokensElement.textContent = tokens;
+    progressBar.style.width = `${(clicks / goal) * 100}%`;
 
-    clicker.addEventListener("click", (e) => {
+    clicker.addEventListener("click", () => {
       clicks++;
       scoreElement.textContent = clicks;
+
+      // Обновить прогресс-бар
+      progressBar.style.width = `${(clicks / goal) * 100}%`;
 
       // Обновить оставшиеся клики
       const remaining = goal - clicks;
       goalElement.textContent = remaining > 0 ? remaining : "Цель достигнута!";
 
-      // Эффект при клике
-      const effect = document.createElement("div");
-      effect.textContent = "🍃";
-      effect.className = "click-effect";
-      effect.style.left = `${e.clientX}px`;
-      effect.style.top = `${e.clientY}px`;
-      document.body.appendChild(effect);
-      setTimeout(() => document.body.removeChild(effect), 500);
-
-      // Проверка на достижение цели
-      if (clicks % 10 === 0 && clicks < goal) {
+      // Начисление токенов
+      if (clicks % 10 === 0) {
+        tokens += 5;
+        tokensElement.textContent = tokens;
         alert(`🎉 Бонус! Вы заработали 5 LCXC токенов!`);
       }
 
       if (clicks === goal) {
+        tokens += 50;
+        tokensElement.textContent = tokens;
         alert("Поздравляем! Вы достигли цели и заработали 50 LCXC токенов!");
       }
 
       // Сохранить прогресс
       localStorage.setItem("clicks", clicks);
+      localStorage.setItem("tokens", tokens);
     });
   </script>
 </body>
