@@ -9,10 +9,6 @@
       font-family: Arial, sans-serif;
       text-align: center;
       background-color: #f7f9fc;
-      background-image: url('https://i.ibb.co/R6Vc5hm/Logo-Greenify-1.png'); /* Лёгкий узор */
-      background-repeat: no-repeat;
-      background-size: 300px;
-      background-position: center top;
       margin: 0;
       padding: 0;
     }
@@ -20,40 +16,28 @@
     h1 {
       color: #799263;
       font-size: 36px;
-      margin-top: 50px;
+      margin-top: 20px;
     }
 
-    #clicker {
-      margin: 20px auto;
-      padding: 20px;
-      background: linear-gradient(145deg, #799263, #c3d4c3);
-      color: #fff;
-      font-size: 22px;
-      font-weight: bold;
-      text-transform: uppercase;
-      border: none;
-      border-radius: 15px;
-      width: 200px;
-      height: 200px;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    #coin {
+      margin: 40px auto;
+      width: 120px;
+      height: 120px;
+      background: url('https://i.ibb.co/R6Vc5hm/Logo-Greenify-1.png') no-repeat center;
+      background-size: cover;
+      border-radius: 50%;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
       cursor: pointer;
-      transition: all 0.3s ease;
+      transition: transform 0.2s ease-in-out;
     }
 
-    #clicker:hover {
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-      transform: scale(1.1);
-    }
-
-    #score {
-      font-size: 24px;
-      color: #444;
-      margin: 20px 0;
+    #coin:active {
+      transform: scale(0.9);
     }
 
     #progress-container {
       width: 80%;
-      margin: 0 auto;
+      margin: 20px auto;
       background-color: #e0e0e0;
       border-radius: 10px;
       overflow: hidden;
@@ -68,60 +52,54 @@
       transition: width 0.3s ease;
     }
 
-    #tokens {
+    #score, #tokens {
       font-size: 20px;
       color: #555;
-      margin-top: 10px;
+      margin: 10px 0;
     }
   </style>
 </head>
 <body>
   <h1>Leaf Code Clicker</h1>
+  <div id="coin"></div>
   <div id="progress-container">
     <div id="progress-bar"></div>
   </div>
-  <p id="progress">Прогресс: <span id="goal">50</span> кликов</p>
-  <button id="clicker">🍃 Кликни!</button>
-  <p>Ваши клики: <span id="score">0</span></p>
-  <p id="tokens">Токены LCXC: <span id="lcxc">0</span></p>
+  <p id="score">Ваши клики: <span id="click-count">0</span></p>
+  <p id="tokens">Токены LCXC: <span id="token-count">0</span></p>
 
   <script>
     let clicks = parseInt(localStorage.getItem("clicks")) || 0;
     let tokens = parseInt(localStorage.getItem("tokens")) || 0;
     const goal = 50;
-    const clicker = document.getElementById("clicker");
-    const scoreElement = document.getElementById("score");
-    const goalElement = document.getElementById("goal");
+
+    const coin = document.getElementById("coin");
+    const clickCount = document.getElementById("click-count");
+    const tokenCount = document.getElementById("token-count");
     const progressBar = document.getElementById("progress-bar");
-    const tokensElement = document.getElementById("lcxc");
 
     // Обновить текст при загрузке
-    scoreElement.textContent = clicks;
-    goalElement.textContent = goal - clicks > 0 ? goal - clicks : "Цель достигнута!";
-    tokensElement.textContent = tokens;
+    clickCount.textContent = clicks;
+    tokenCount.textContent = tokens;
     progressBar.style.width = `${(clicks / goal) * 100}%`;
 
-    clicker.addEventListener("click", () => {
+    coin.addEventListener("click", () => {
       clicks++;
-      scoreElement.textContent = clicks;
+      clickCount.textContent = clicks;
 
       // Обновить прогресс-бар
       progressBar.style.width = `${(clicks / goal) * 100}%`;
 
-      // Обновить оставшиеся клики
-      const remaining = goal - clicks;
-      goalElement.textContent = remaining > 0 ? remaining : "Цель достигнута!";
-
       // Начисление токенов
       if (clicks % 10 === 0) {
         tokens += 5;
-        tokensElement.textContent = tokens;
+        tokenCount.textContent = tokens;
         alert(`🎉 Бонус! Вы заработали 5 LCXC токенов!`);
       }
 
       if (clicks === goal) {
         tokens += 50;
-        tokensElement.textContent = tokens;
+        tokenCount.textContent = tokens;
         alert("Поздравляем! Вы достигли цели и заработали 50 LCXC токенов!");
       }
 
