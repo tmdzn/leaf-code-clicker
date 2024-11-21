@@ -3,149 +3,148 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Leaf Code Clicker</title>
+  <title>Leaf Code Grower</title>
   <style>
     body {
       font-family: 'Arial', sans-serif;
-      background: linear-gradient(to bottom, #f7f9fc, #d4e8d4);
-      color: #333;
+      background: linear-gradient(to bottom, #e9f7e9, #c3e4c3);
       margin: 0;
       padding: 0;
+      text-align: center;
+      color: #333;
     }
 
     h1 {
-      text-align: center;
-      color: #799263;
       font-size: 36px;
-      margin-top: 20px;
-      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+      margin: 20px 0;
+      color: #799263;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
     }
 
-    #container {
-      width: 100%;
+    #game-container {
       max-width: 600px;
       margin: 0 auto;
-      text-align: center;
       padding: 20px;
     }
 
-    #character {
-      width: 120px;
-      height: 120px;
+    #plant-container {
+      position: relative;
+      width: 200px;
+      height: 300px;
+      margin: 20px auto;
       background: url('https://i.ibb.co/R6Vc5hm/Logo-Greenify-1.png') no-repeat center;
-      background-size: cover;
-      margin: 0 auto 20px;
-      border-radius: 50%;
-      border: 3px solid #799263;
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+      background-size: contain;
+    }
+
+    #growth-stage {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 100%;
+      height: 100%;
+      background-size: contain;
+      background-repeat: no-repeat;
     }
 
     #progress-bar-container {
-      background: #e0e0e0;
       width: 80%;
+      background: #e0e0e0;
       height: 20px;
-      margin: 20px auto;
       border-radius: 10px;
+      margin: 20px auto;
       overflow: hidden;
       box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
     }
 
     #progress-bar {
+      width: 0;
       height: 100%;
-      width: 0%;
-      background: linear-gradient(145deg, #799263, #c3d4c3);
+      background: linear-gradient(145deg, #799263, #a7c9a7);
       transition: width 0.3s ease;
     }
 
-    .stats {
-      display: flex;
-      justify-content: space-between;
-      width: 80%;
-      margin: 10px auto;
-    }
-
-    .stat-item {
-      font-size: 18px;
-      color: #555;
-    }
-
     .button {
+      padding: 10px 20px;
+      font-size: 18px;
       background: linear-gradient(145deg, #799263, #a7c9a7);
       color: white;
-      font-size: 20px;
-      padding: 10px 20px;
-      border-radius: 10px;
-      margin: 10px auto;
       border: none;
+      border-radius: 10px;
       cursor: pointer;
-      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      margin-top: 20px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+      transition: transform 0.2s ease;
     }
 
     .button:active {
       transform: scale(0.95);
-      box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.2);
     }
 
-    .bonus-message {
-      font-size: 24px;
-      color: #4caf50;
-      font-weight: bold;
-      margin: 10px 0;
-      opacity: 0;
-      transition: opacity 1s ease-in-out;
+    .stage-message {
+      font-size: 18px;
+      margin-top: 10px;
+      color: #555;
     }
   </style>
 </head>
 <body>
-  <h1>Leaf Code Clicker</h1>
-  <div id="container">
-    <div id="character"></div>
+  <h1>Leaf Code Grower</h1>
+  <div id="game-container">
+    <div id="plant-container">
+      <div id="growth-stage"></div>
+    </div>
     <div id="progress-bar-container">
       <div id="progress-bar"></div>
     </div>
-    <div class="stats">
-      <div class="stat-item">Клики: <span id="click-count">0</span></div>
-      <div class="stat-item">Токены: <span id="token-count">0</span></div>
-    </div>
-    <div id="bonus-message" class="bonus-message">🎉 Бонус: +5 LCXC!</div>
-    <button id="clicker" class="button">Кликни!</button>
+    <div class="stage-message" id="stage-message">Собирайте клики, чтобы вырастить растение!</div>
+    <button id="click-button" class="button">Кликни для роста 🌱</button>
+    <div class="stage-message">Клики: <span id="click-count">0</span> | Уровень: <span id="growth-level">Росток</span></div>
   </div>
 
   <script>
+    const stages = [
+      { level: 'Росток', image: 'https://i.ibb.co/R6Vc5hm/Logo-Greenify-1.png', clicks: 0 },
+      { level: 'Куст', image: 'https://i.ibb.co/JvX2jZt/leaf-stage2.png', clicks: 50 },
+      { level: 'Дерево', image: 'https://i.ibb.co/dKNF4k6/leaf-stage3.png', clicks: 100 },
+      { level: 'Мощное дерево', image: 'https://i.ibb.co/3mP7XvL/leaf-stage4.png', clicks: 150 },
+    ];
+
     let clicks = 0;
-    let tokens = 0;
-    const goal = 50;
+    let currentStage = 0;
 
+    const clickButton = document.getElementById('click-button');
     const clickCount = document.getElementById('click-count');
-    const tokenCount = document.getElementById('token-count');
+    const growthStage = document.getElementById('growth-stage');
     const progressBar = document.getElementById('progress-bar');
-    const bonusMessage = document.getElementById('bonus-message');
+    const stageMessage = document.getElementById('stage-message');
+    const growthLevel = document.getElementById('growth-level');
 
-    document.getElementById('clicker').addEventListener('click', () => {
-      clicks++;
+    function updateGame() {
       clickCount.textContent = clicks;
 
       // Update progress bar
-      progressBar.style.width = `${(clicks / goal) * 100}%`;
+      const stageClicks = stages[currentStage + 1]?.clicks || clicks;
+      const progress = Math.min((clicks / stageClicks) * 100, 100);
+      progressBar.style.width = `${progress}%`;
 
-      if (clicks % 10 === 0) {
-        tokens += 5;
-        tokenCount.textContent = tokens;
-
-        // Show bonus message
-        bonusMessage.style.opacity = 1;
-        setTimeout(() => {
-          bonusMessage.style.opacity = 0;
-        }, 1500);
+      // Check for next stage
+      if (stages[currentStage + 1] && clicks >= stages[currentStage + 1].clicks) {
+        currentStage++;
+        growthStage.style.backgroundImage = `url(${stages[currentStage].image})`;
+        growthLevel.textContent = stages[currentStage].level;
+        stageMessage.textContent = `Поздравляем! Вы достигли уровня "${stages[currentStage].level}"!`;
       }
+    }
 
-      if (clicks === goal) {
-        tokens += 50;
-        tokenCount.textContent = tokens;
-        alert('Поздравляем! Вы достигли цели и заработали 50 LCXC токенов!');
-      }
+    clickButton.addEventListener('click', () => {
+      clicks++;
+      updateGame();
     });
+
+    // Initialize game
+    growthStage.style.backgroundImage = `url(${stages[currentStage].image})`;
+    updateGame();
   </script>
 </body>
 </html>
